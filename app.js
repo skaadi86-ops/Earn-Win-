@@ -215,7 +215,7 @@ function updateUI() {
     document.getElementById('profileEmail').textContent = userData.email;
     document.getElementById('totalPoints').textContent = userData.points.toLocaleString();
     document.getElementById('totalBalance').textContent = `₹${pointsToRupees(userData.points)}`;
-    const spinsLeft = Math.max(0, 5 - userData.spinsToday);
+    const spinsLeft = Math.max(0, 20 - userData.spinsToday);   // ✅ updated daily limit
     document.getElementById('spinsLeft').textContent = `${spinsLeft} spins left`;
     document.getElementById('spinsToday').textContent = userData.spinsToday;
     document.getElementById('spinButton').disabled = !(spinsLeft > 0 && !isSpinning);
@@ -272,11 +272,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const screen = item.getAttribute('data-screen') + 'Screen'; showAppScreen(screen);
     }));
 
+    // ✅ Spin button with 20 spins/day + 5s cooldown
     document.getElementById('spinButton').addEventListener('click', async () => {
-        if (isSpinning || userData.spinsToday >= 5) return;
-        isSpinning = true; spinWheel.spin(); await updateSpinData();
+        if (isSpinning || userData.spinsToday >= 20) return;
+
+        isSpinning = true;
+        spinWheel.spin();
+        await updateSpinData();
+
         setTimeout(() => showToast('Thanks for watching the ad!', 'success'), 1000);
-        setTimeout(() => { isSpinning = false; updateUI(); }, 3000);
+
+        // 5-second cooldown
+        setTimeout(() => {
+            isSpinning = false;
+            updateUI();
+        }, 5000);
     });
 
     document.getElementById('withdrawButton').addEventListener('click', () => {
